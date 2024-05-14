@@ -238,11 +238,11 @@ if __name__ == "__main__":
 
     elif args.operation == 2:
         roles = {
-            'A': ['AAA'],
+            'MANUFACTURER': ['MANUFACTURER'],
 
-            'B': ['BBB', 'CCC'],
+            'SUPPLIER1': ['SUPPLIER', 'ELECTRONICS'],
 
-            'C': ['BBB', 'DDD']
+            'SUPPLIER2': ['SUPPLIER', 'MECHANICS']
         }
         Certifier.attribute_certification(roles)
     else:

@@ -97,9 +97,7 @@ class CAKEDataOwner(Connector):
 
 
 if __name__ == "__main__":
-    NO_SLICE = False
     # f = open('files/data.json')
-    sender_address = config('ADDRESS_SENDER')
     g = open('files/data.json')
 
     process_instance_id = config('PROCESS_INSTANCE_ID')
@@ -126,18 +124,6 @@ if __name__ == "__main__":
     policy = [process_instance_id + ' and ' + policy.strip("[]'") for policy in policies_list]
 
     policy_string = '###'.join(policy)
-
-    if NO_SLICE:
-        data = json.load(open('files/data.json'))
-        entries = [list(data.keys())]
-        entries_string = '###'.join(str(x) for x in entries)
-        print(entries_string)
-
-        policy = process_instance_id + ' and (MANUFACTURER or (SUPPLIER and ELECTRONICS))'
-        policy = [policy]
-        policy_string = '###'.join(policy)
-
-    sender = sender_address
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-hs', '--hanshake', action='store_true')

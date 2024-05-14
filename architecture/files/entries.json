@@ -1,4 +1,4 @@
 {
     "entries": "['ID', 'SortAs', 'GlossTerm'], ['Acronym', 'Abbrev'], ['Specs', 'Dates']",
-    "policies": "['(AAA or BBB)'], ['(AAA or (BBB and CCC))'], ['(AAA or (BBB and DDD))']"
+    "policies": "['(AAA or BBB)'], ['(AAA)'], ['(AAA or (BBB and DDD))']"
 }

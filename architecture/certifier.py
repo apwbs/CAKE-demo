@@ -237,13 +237,18 @@ if __name__ == "__main__":
         Certifier.skm_public_key()
 
     elif args.operation == 2:
-        roles = {
-            'MANUFACTURER': ['MANUFACTURER'],
+        with open("files/roles.json", "r") as json_file:
+            roles_data = json.load(json_file)
 
-            'SUPPLIER1': ['SUPPLIER', 'ELECTRONICS'],
+        roles = {key: [value] if not isinstance(value, list) else value for key, value in roles_data.items()}
 
-            'SUPPLIER2': ['SUPPLIER', 'MECHANICS']
-        }
+        #    roles = {
+        #    'MANUFACTURER': ['MANUFACTURER'],
+        #
+        #    'SUPPLIER1': ['SUPPLIER', 'ELECTRONICS'],
+        #
+        #    'SUPPLIER2': ['SUPPLIER', 'MECHANICS']
+        #   }
         Certifier.attribute_certification(roles)
     else:
         raise Exception("Operation number not valid")

@@ -26,7 +26,7 @@ class CAKEDataOwner(Connector):
         """
         super().__init__("files/data_owner/data_owner.db", int(config('SDM_PORT')),
                          process_instance_id=process_instance_id)
-        self.sender_address = config('ADDRESS_SENDER')
+        self.sender_address = config('ADDRESS_MANUFACTURER')
         return
 
     """

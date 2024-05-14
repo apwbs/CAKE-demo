@@ -1,0 +1,4 @@
+{
+    "entries": "['ID', 'SortAs', 'GlossTerm'], ['Acronym', 'Abbrev'], ['Specs', 'Dates']",
+    "policies": "['(MANUFACTURER or SUPPLIER)'], ['(MANUFACTURER or (SUPPLIER and ELECTRONICS))'], ['(MANUFACTURER or (SUPPLIER and MECHANICS))']"
+}

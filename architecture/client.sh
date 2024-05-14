@@ -1,6 +1,6 @@
-message_id='16003231172260388086'
+message_id='15930603085667034134'
 reader_address='0xf78F10d7CeC746B85CECb44e66875618d15F9e43'
-slice_id='14710789011948123647'
+slice_id='17494589190338649177'
 
 python3 client.py --handshake --message_id $message_id --reader_address $reader_address
 python3 client.py -gs --message_id $message_id --reader_address $reader_address 

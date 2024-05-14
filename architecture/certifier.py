@@ -10,12 +10,14 @@ from datetime import datetime
 import json
 import argparse
 
+
 class Certifier():
     """ Manage the certification of the attributes of the actors
 
     A collectio of static methods to read the public keys of the actors, 
     the public key of the SKM and to certify the attributes of the actors
     """
+
     def certify(actors, roles):
         """ Read the public keys of actors and SKM, and certify the attributes of the actors
 
@@ -61,7 +63,6 @@ class Certifier():
         """
         Certifier.__attribute_certification__(roles)
 
-
     def __read_public_key__(actor_name):
         """ Read the public and private key of an actor
 
@@ -93,24 +94,26 @@ class Certifier():
         f.seek(0)
 
         hash_file = api.add_json(f.read())
-        #print(f'ipfs hash: {hash_file}')
+        # print(f'ipfs hash: {hash_file}')
         print('ipfs hash: ' + str(hash_file))
-        
+
         block_int.send_publicKey(reader_address, private_key, hash_file)
 
-        x.execute("INSERT OR IGNORE INTO rsa_private_key VALUES (?,?,?)", (reader_address, str(keyPair.n), str(keyPair.d)))
+        x.execute("INSERT OR IGNORE INTO rsa_private_key VALUES (?,?,?)",
+                  (reader_address, str(keyPair.n), str(keyPair.d)))
         conn.commit()
 
         x.execute("INSERT OR IGNORE INTO rsa_public_key VALUES (?,?,?,?)",
-                (reader_address, hash_file, str(keyPair.n), str(keyPair.e)))
+                  (reader_address, hash_file, str(keyPair.n), str(keyPair.e)))
         conn.commit()
 
-        y.execute("INSERT OR IGNORE INTO rsa_private_key VALUES (?,?,?)", (reader_address, str(keyPair.n), str(keyPair.d)))
+        y.execute("INSERT OR IGNORE INTO rsa_private_key VALUES (?,?,?)",
+                  (reader_address, str(keyPair.n), str(keyPair.d)))
         connection.commit()
 
         y.execute("INSERT OR IGNORE INTO rsa_public_key VALUES (?,?,?,?)",
-                (reader_address, hash_file, str(keyPair.n), str(keyPair.e)))
-        connection.commit() 
+                  (reader_address, hash_file, str(keyPair.n), str(keyPair.e)))
+        connection.commit()
 
     def __skm_public_key__():
         """ Read the public and private key of the SKM
@@ -158,12 +161,11 @@ class Certifier():
             if line.startswith(name):
                 data.remove(line)
                 break
-        line = "\n" +  name + "=" + value + "\n"
+        line = "\n" + name + "=" + value + "\n"
         data.append(line)
 
         with open('.env', 'w', encoding='utf-8') as file:
             file.writelines(data)
-
 
     def __attribute_certification__(roles):
         """ Certify the attributes of the actors
@@ -178,13 +180,14 @@ class Certifier():
             int : the process instance id of the certification process
         """
 
-        api = ipfshttpclient.connect('/ip4/127.0.0.1/tcp/5001') # Connect to local IPFS node (creo un nodo locale di ipfs)
+        api = ipfshttpclient.connect(
+            '/ip4/127.0.0.1/tcp/5001')  # Connect to local IPFS node (creo un nodo locale di ipfs)
 
         certifier_address = config('ADDRESS_CERTIFIER')
         certifier_private_key = config('PRIVATEKEY_CERTIFIER')
 
         # Connection to SQLite3 attribute_certifier database
-        conn = sqlite3.connect('files/attribute_certifier/attribute_certifier.db') # Connect to the database
+        conn = sqlite3.connect('files/attribute_certifier/attribute_certifier.db')  # Connect to the database
         x = conn.cursor()
 
         now = datetime.now()
@@ -192,14 +195,14 @@ class Certifier():
         random.seed(now)
         process_instance_id = random.randint(1, 2 ** 63)
         print(f'process instance id: {process_instance_id}')
-    
+
         dict_users = {}
         for actor, list_roles in roles.items():
             dict_users[config('ADDRESS_' + actor)] = [str(process_instance_id)] + [role for role in list_roles]
-        #dict_users = {for actor in actors: config('ADDRESS_' + actor): [str(process_instance_id), actor]}
+        # dict_users = {for actor in actors: config('ADDRESS_' + actor): [str(process_instance_id), actor]}
 
         f = io.StringIO()
-        dict_users_dumped = json.dumps(dict_users) # Metto su blockchain gli attributi degli utenti manufacter, supplier1 e supplier2
+        dict_users_dumped = json.dumps(dict_users)
         f.write('"process_instance_id": ' + str(process_instance_id) + '####')
         f.write(dict_users_dumped)
         f.seek(0)
@@ -212,18 +215,19 @@ class Certifier():
         block_int.send_users_attributes(certifier_address, certifier_private_key, process_instance_id, hash_file)
 
         x.execute("INSERT OR IGNORE INTO user_attributes VALUES (?,?,?)",
-                (str(process_instance_id), hash_file, file_to_str))
+                  (str(process_instance_id), hash_file, file_to_str))
         conn.commit()
 
         Certifier.__store_process_id_to_env__(str(process_instance_id))
 
         return process_instance_id
 
-    
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Certifier configuration')
-    parser.add_argument('-o', '--operation', type=int, default=0,help='Operation to perform \n 0 - READ PUBLIC KEY \n 2 - READ SKM PUBLIC KEY \n 3 - CERTIFY ATTRIBUTES ')
-    parser.add_argument('-r', '--reader', type=str, default='MANUFACTURER',help='Reader name')
+    parser.add_argument('-o', '--operation', type=int, default=0,
+                        help='Operation to perform \n 0 - READ PUBLIC KEY \n 2 - READ SKM PUBLIC KEY \n 3 - CERTIFY ATTRIBUTES ')
+    parser.add_argument('-r', '--reader', type=str, default='MANUFACTURER', help='Reader name')
     args = parser.parse_args()
     if args.operation == 0:
         print(args.reader)
@@ -233,18 +237,13 @@ if __name__ == "__main__":
         Certifier.skm_public_key()
 
     elif args.operation == 2:
-        manufacturer_address = config('ADDRESS_MANUFACTURER')
-        supplier1_address = config('ADDRESS_SUPPLIER1')
-        supplier2_address = config('ADDRESS_SUPPLIER2')
-
         roles = {
-            'MANUFACTURER': ['MANUFACTURER'],
+            'A': ['AAA'],
 
-            'SUPPLIER1': ['SUPPLIER', 'ELECTRONICS'],
+            'B': ['BBB', 'CCC'],
 
-            'SUPPLIER2': ['SUPPLIER', 'MECHANICS']
+            'C': ['BBB', 'DDD']
         }
         Certifier.attribute_certification(roles)
     else:
-        raise Exception("Operation number not valid")    
-
+        raise Exception("Operation number not valid")

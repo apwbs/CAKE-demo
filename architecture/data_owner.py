@@ -15,7 +15,7 @@ class CAKEDataOwner(Connector):
     A class to manage the communication with the CAKE SDM server
 
     Attributes:
-        manufacturer_address (str): manufacturer address
+        sender_address (str): manufacturer address
     """
 
     def __init__(self, process_instance_id=config('PROCESS_INSTANCE_ID')):
@@ -26,7 +26,7 @@ class CAKEDataOwner(Connector):
         """
         super().__init__("files/data_owner/data_owner.db", int(config('SDM_PORT')),
                          process_instance_id=process_instance_id)
-        self.manufacturer_address = config('ADDRESS_MANUFACTURER')
+        self.sender_address = config('ADDRESS_SENDER')
         return
 
     """
@@ -53,18 +53,18 @@ class CAKEDataOwner(Connector):
         if receive.startswith('Number to be signed: '):
             len_initial_message = len('Number to be signed: ')
             self.x.execute("INSERT OR IGNORE INTO handshake_number VALUES (?,?,?)",
-                           (self.process_instance_id, self.manufacturer_address, receive[len_initial_message:]))
+                           (self.process_instance_id, self.sender_address, receive[len_initial_message:]))
             self.connection.commit()
         if receive.startswith('Here is the message_id:'):
             self.x.execute("INSERT OR IGNORE INTO messages VALUES (?,?,?)",
-                           (self.process_instance_id, self.manufacturer_address, receive[16:]))
+                           (self.process_instance_id, self.sender_address, receive[16:]))
             self.connection.commit()
 
     def handshake(self):
         """Handshake with the CAKE SDM server"""
 
         print("Start handshake")
-        self.send("Start handshake§" + self.manufacturer_address)
+        self.send("Start handshake§" + self.sender_address)
         self.disconnect()
         return
 
@@ -77,7 +77,7 @@ class CAKEDataOwner(Connector):
             policy_string (str): policy converted to string"""
         signature_sending = self.sign_number()
         self.send(
-            "Cipher this message§" + message_to_send + '§' + entries_string + '§' + policy_string + '§' + self.manufacturer_address + '§' + str(
+            "Cipher this message§" + message_to_send + '§' + entries_string + '§' + policy_string + '§' + self.sender_address + '§' + str(
                 signature_sending))
         self.disconnect()
         return
@@ -93,13 +93,13 @@ class CAKEDataOwner(Connector):
         self.x.execute("SELECT * FROM handshake_number WHERE process_instance=?", (self.process_instance_id,))
         result = self.x.fetchall()
         number_to_sign = result[0][2]
-        return super().sign_number(number_to_sign, self.manufacturer_address)
+        return super().sign_number(number_to_sign, self.sender_address)
 
 
 if __name__ == "__main__":
     NO_SLICE = False
     # f = open('files/data.json')
-    manufacturer_address = config('ADDRESS_MANUFACTURER')
+    sender_address = config('ADDRESS_SENDER')
     g = open('files/data.json')
 
     process_instance_id = config('PROCESS_INSTANCE_ID')
@@ -137,7 +137,7 @@ if __name__ == "__main__":
         policy = [policy]
         policy_string = '###'.join(policy)
 
-    sender = manufacturer_address
+    sender = sender_address
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-hs', '--hanshake', action='store_true')

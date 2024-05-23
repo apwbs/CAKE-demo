@@ -26,7 +26,6 @@ app_id_messages = config('APPLICATION_ID_MESSAGES')
 skm_address = config('SKM_ADDRESS')
 sdm_private_key = config('SDM_PRIVATEKEY')
 
-
 """
 Necessary ABE connections
 """
@@ -111,7 +110,8 @@ def main(message, access_policy, sender):
         s_1_hashed = hashlib.sha256(s_1)
         hex_dig = s_1_hashed.hexdigest()
 
-        metadata = {'slice_id': slice_id, 'message_with_salt': hex_dig, 'salt': salt_with_policy_bytes_64, 'file': cipher_field_bytes_64}
+        metadata = {'slice_id': slice_id, 'message_with_salt': hex_dig, 'salt': salt_with_policy_bytes_64,
+                    'file': cipher_field_bytes_64}
         metadata_list.append(metadata)
 
     message_id = random.randint(1, 2 ** 64)
@@ -127,8 +127,9 @@ def main(message, access_policy, sender):
     hash_file = api.add_json(final_message)
     print(f'ipfs hash: {hash_file}')
 
-    os_result = os.popen('python3.10 blockchain/MessageContract/MessageContractMain.py -sender %s -app %s -message %s -hash %s' % (
-        sdm_private_key, app_id_messages, message_id, hash_file)).read()
+    os_result = os.popen(
+        'python3.10 blockchain/MessageContract/MessageContractMain.py -sender %s -app %s -message %s -hash %s' % (
+            sdm_private_key, app_id_messages, message_id, hash_file)).read()
     print(os_result)
     tx_id = os_result.split('Transaction id: ')[1]
     return message_id, hash_file, final_slices, tx_id

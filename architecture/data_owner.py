@@ -97,41 +97,43 @@ class CAKEDataOwner(Connector):
 
 
 if __name__ == "__main__":
-    # f = open('files/data.json')
-    g = open('files/data.json')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-hs', '--handshake', action='store_true')
+    parser.add_argument('-c', '--cipher', action='store_true')
+    parser.add_argument('-d', '--data', type=str, help='Path to the data-file to load.')
+    parser.add_argument('-e', '--entries', type=str, help='Path to the entries-file to load.')
+    parser.add_argument('-p', '--policies', type=str, help='Path to the policies-file to load.')
+    dataOwner = CAKEDataOwner()
+    args = parser.parse_args()
 
     process_instance_id = config('PROCESS_INSTANCE_ID')
 
-    message_to_send = g.read()
+    if args.entries:
+        entries_path = args.entries
+        with open(entries_path, "r") as json_file:
+            data = json.load(json_file)
+        entries_strings = data["entries"]
+        entries = ast.literal_eval("[" + entries_strings + "]")
 
-    # policy_string = '1604423002081035210 and (MANUFACTURER or (SUPPLIER and ELECTRONICS))'
+        entries_string = '###'.join(str(x) for x in entries)
 
-    with open("files/entries.json", "r") as json_file:
-        data = json.load(json_file)
-    entries_strings = data["entries"]
-    entries = ast.literal_eval("[" + entries_strings + "]")
+        if args.policies:
+            policies_path = args.policies
+            with open(policies_path, "r") as json_file:
+                data = json.load(json_file)
+                policies_strings = data["policies"]
+                policies_list = policies_strings.split(", ")
+                policy = [process_instance_id + ' and ' + policy.strip("[]'") for policy in policies_list]
 
-    entries_string = '###'.join(str(x) for x in entries)
+                policy_string = '###'.join(policy)
 
-    # entries = [['ID', 'SortAs', 'GlossTerm'], ['Acronym', 'Abbrev'], ['Specs', 'Dates']]
-    # entries_string = '###'.join(str(x) for x in entries)
-    # policy = [process_instance_id + ' and (MANUFACTURER or SUPPLIER)',
-    #         process_instance_id + ' and (MANUFACTURER or (SUPPLIER and ELECTRONICS))',
-    #         process_instance_id + ' and (MANUFACTURER or (SUPPLIER and MECHANICS))']
+        if args.data:
+            path = args.data
+            with open(path, 'r') as g:
+                message_to_send = g.read()
 
-    policies_strings = data["policies"]
-    policies_list = policies_strings.split(", ")
-    policy = [process_instance_id + ' and ' + policy.strip("[]'") for policy in policies_list]
+        if args.handshake:
+            dataOwner.handshake()
 
-    policy_string = '###'.join(policy)
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-hs', '--hanshake', action='store_true')
-    parser.add_argument('-c', '--cipher', action='store_true')
-    dataOwner = CAKEDataOwner()
-    args = parser.parse_args()
-    if args.hanshake:
-        dataOwner.handshake()
-
-    if args.cipher:
-        dataOwner.cipher_data(message_to_send, entries_string, policy_string)
+        if args.cipher:
+            dataOwner.cipher_data(message_to_send, entries_string, policy_string)

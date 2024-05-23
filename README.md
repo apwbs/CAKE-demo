@@ -1,9 +1,11 @@
 # CAKE-demo
 
+CAKE (Control Access via Key Encryption) is a framework and tool for secure data sharing via IPFS and public blockchains with access control.
+
 This repository contains the implementation of the demo paper of the CAKE approach described in "[CAKE: Sharing Slices of Confidential Data on Blockchain](https://arxiv.org/abs/2405.04152)" and presented at the [CAiSE’24 forum](https://cyprusconferences.org/caise2024/).
 
 ## Wiki
-Check out the [GitHub Wiki](https://github.com/apwbs/CAKE-demo/wiki) to install CAKE.
+Check out the [GitHub Wiki](https://github.com/apwbs/CAKE-demo/wiki) to install CAKE and run this demo.
 
 ## Literature and links
 

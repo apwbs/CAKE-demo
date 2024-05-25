@@ -63,10 +63,8 @@ def main(message_id, slice_id, reader_address):
     pk = base64.b64decode(pk)
     pk = bytesToObject(pk, groupObj)
 
-    output_folder = "files/prova/"
     output_files = {}
     if int(slice_id) != 0:
-        print("sono quiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
         metadata = j2['metadata']
         for i, elem in enumerate(metadata):
             slice_number = metadata[i]['slice_id']

@@ -209,10 +209,6 @@ if __name__ == "__main__":
     slice_id = args.slice_id
     reader_address = args.reader_address
 
-    #print("message_id: ", message_id)
-    #print("slice_id: ", slice_id)
-    #print("reader_address: ", reader_address)
-
     client = CAKEClient(message_id=message_id, reader_address=reader_address, slice_id=slice_id)
     if args.handshake:
         client.handshake()

@@ -8,6 +8,8 @@ import sqlite3
 import argparse
 from connector import Connector
 
+global output_folder
+
 
 def base64_to_file(encoded_data, output_file_path):
     try:
@@ -128,8 +130,6 @@ class CAKEClient(Connector):
 
             salt = receive.split('\n\n')[1]
             salt = salt[:-13]
-
-            output_folder = "files/prova/"
             filename = list(plaintext_value.items())[0][0]
             base64_to_file(plaintext_file, output_folder + filename)
 
@@ -198,6 +198,7 @@ if __name__ == "__main__":
     parser.add_argument('-m', '--message_id', type=str, help='Message ID')
     parser.add_argument('-s', '--slice_id', type=str, help='Slice ID')
     parser.add_argument('-rd', '--reader_address', type=str, help='Reader address')
+    parser.add_argument('-of', '--output_folder', type=str, help='Output folder')
 
     parser.add_argument('-hs', '--handshake', action='store_true', help='Handshake')
     parser.add_argument('-gs', '--generate_key', action='store_true', help='Generate key')
@@ -208,6 +209,8 @@ if __name__ == "__main__":
     message_id = args.message_id
     slice_id = args.slice_id
     reader_address = args.reader_address
+
+    output_folder = args.output_folder
 
     client = CAKEClient(message_id=message_id, reader_address=reader_address, slice_id=slice_id)
     if args.handshake:

@@ -68,7 +68,6 @@ def main(message_id, slice_id, reader_address):
         metadata = j2['metadata']
         for i, elem in enumerate(metadata):
             slice_number = metadata[i]['slice_id']
-            print(slice_number)
             if slice_number == int(slice_id):
                 salt = metadata[i]['salt']
                 salt = base64.b64decode(salt)

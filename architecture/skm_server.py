@@ -10,12 +10,13 @@ from hashlib import sha512
 import block_int
 from decouple import config
 import ipfshttpclient
+import decipher_files
 
 api = ipfshttpclient.connect('/ip4/127.0.0.1/tcp/5001')
 
 process_instance_id = config('PROCESS_INSTANCE_ID')
 
-HEADER = 64
+HEADER = int(config('HEADER'))
 PORT = int(config('SKM_PORT'))
 server_cert = 'Keys/server.crt'
 server_key = 'Keys/server.key'
@@ -44,6 +45,10 @@ def generate(message_id, reader_address):
 
 def read(message_id, slice_id, reader_address):
     return decipher_message.main(message_id, slice_id, reader_address)
+
+
+def read_files(message_id, slice_id, reader_address):
+    return decipher_files.main(message_id, slice_id, reader_address)
 
 
 def generate_number_to_sign(message_id, reader_address):
@@ -118,6 +123,10 @@ def handle_client(conn, addr):
                 if check_handshake(message[1], message[3], message[4]):
                     response = read(message[1], message[2], message[3])
                     conn.send(b'Here are the plaintext and salt: ' + response[0] + b'\n\n' + response[1])
+            if message[0] == "Access my files":
+                if check_handshake(message[1], message[3], message[4]):
+                    response = read_files(message[1], message[2], message[3])
+                    conn.send(b'Here is the file and salt: ' + response[0] + b'\n\n' + response[1])
 
     conn.close()
 

@@ -1,8 +1,9 @@
 import sqlite3
 from decouple import config
 import ssl
-import socket 
+import socket
 from hashlib import sha512
+
 
 class Connector:
     """A communication bridge between the CAKE servers and the API server
@@ -25,7 +26,8 @@ class Connector:
         client_key (str): client key
         conn (ssl.SSLSocket): connection to the server
     """
-    def __init__(self, path_to_db, port, process_instance_id = config('PROCESS_INSTANCE_ID')):
+
+    def __init__(self, path_to_db, port, process_instance_id=config('PROCESS_INSTANCE_ID')):
         """Initialize the CAKEBridge class
 
         Args:
@@ -38,7 +40,7 @@ class Connector:
         self.x = self.connection.cursor()
 
         # Read process instance id from .env file
-        #self.process_instance_id = config('PROCESS_INSTANCE_ID')
+        # self.process_instance_id = config('PROCESS_INSTANCE_ID')
         self.process_instance_id = process_instance_id
         print("Process instance id:", self.process_instance_id)
         # Set up connection parameters
@@ -66,13 +68,13 @@ class Connector:
         self.conn = context.wrap_socket(s, server_side=False, server_hostname=self.server_sni_hostname)
         self.conn.connect(self.ADDR)
         return
-        
+
     def disconnect(self):
         """Disconnect from the server"""
         print("Disconnecting")
         self.send(self.DISCONNECT_MESSAGE)
         return
-    
+
     def sign_number(self, number_to_sign, reader_address):
         """Sign a number using the private key of the reader
         

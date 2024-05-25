@@ -5,25 +5,19 @@ from charm.core.engine.util import objectToBytes, bytesToObject
 from charm.toolbox.symcrypto import AuthenticatedCryptoAbstraction
 from charm.core.math.pairing import hashPair as sha2, deserialize, serialize
 import json
-# import write
-import sqlite3
-# import encoders_decoders
 import random
-import rsa
 import hashlib
 import base64
 import encoders_decoders
 from datetime import datetime
-import re
+import block_int
 import ipfshttpclient
-import os
-import ast
 from decouple import config
 
 api = ipfshttpclient.connect('/ip4/127.0.0.1/tcp/5001')
 
-app_id_messages = config('APPLICATION_ID_MESSAGES')
 skm_address = config('SKM_ADDRESS')
+sdm_address = config('SDM_ADDRESS')
 sdm_private_key = config('SDM_PRIVATEKEY')
 
 """
@@ -121,15 +115,8 @@ def main(message, access_policy, sender):
 
     final_message = {'header': header, 'metadata': metadata_list, 'body': ciphered_message_list}
 
-    with open('files/more_files.json', 'w') as u1:
-        u1.write(json.dumps(final_message))
-
     hash_file = api.add_json(final_message)
     print(f'ipfs hash: {hash_file}')
 
-    os_result = os.popen(
-        'python3.10 blockchain/MessageContract/MessageContractMain.py -sender %s -app %s -message %s -hash %s' % (
-            sdm_private_key, app_id_messages, message_id, hash_file)).read()
-    print(os_result)
-    tx_id = os_result.split('Transaction id: ')[1]
-    return message_id, hash_file, final_slices, tx_id
+    block_int.send_MessageIPFSLink(sdm_address, sdm_private_key, sender, message_id, hash_file)
+    return message_id

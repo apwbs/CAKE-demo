@@ -80,12 +80,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-hs', '--handshake', action='store_true')
     parser.add_argument('-c', '--cipher', action='store_true')
-    parser.add_argument('-i', '--input', action='store_true')
+    parser.add_argument('-i', '--input', type=str, help='Path to the input-file to load.')
     parser.add_argument('-p', '--policies', type=str, help='Path to the policies-file to load.')
     dataOwner = CAKEDataOwner()
     args = parser.parse_args()
 
     process_instance_id = config('PROCESS_INSTANCE_ID')
+
+    if args.handshake:
+        dataOwner.handshake()
 
     if args.input:
         input_path = args.input
@@ -107,9 +110,6 @@ if __name__ == "__main__":
                 policies_list = policies_strings.split(", ")
                 policy = [process_instance_id + ' and ' + policy.strip("[]'") for policy in policies_list]
                 policy_string = '###'.join(policy)
-
-        if args.handshake:
-            dataOwner.handshake()
 
         if args.cipher:
             dataOwner.cipher_files(message_to_send, policy_string)

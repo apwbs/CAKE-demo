@@ -18,7 +18,7 @@ class CAKEDataOwner(Connector):
         sender_address (str): manufacturer address
     """
 
-    def __init__(self, process_instance_id=config('PROCESS_INSTANCE_ID')):
+    def __init__(self, sender, process_instance_id=config('PROCESS_INSTANCE_ID')):
         """Initialize the CAKEDataOwner class
 
         Args:
@@ -26,7 +26,7 @@ class CAKEDataOwner(Connector):
         """
         super().__init__("files/data_owner/data_owner.db", int(config('SDM_PORT')),
                          process_instance_id=process_instance_id)
-        self.sender_address = config('ADDRESS_MANUFACTURER')
+        self.sender_address = config(f"ADDRESS_{sender}")
         return
 
     """
@@ -101,10 +101,12 @@ if __name__ == "__main__":
     parser.add_argument('-hs', '--handshake', action='store_true')
     parser.add_argument('-c', '--cipher', action='store_true')
     parser.add_argument('-d', '--data', type=str, help='Path to the data-file to load.')
+    parser.add_argument('-s', '--sender', type=str, help='Sender name')
     parser.add_argument('-e', '--entries', type=str, help='Path to the entries-file to load.')
     parser.add_argument('-p', '--policies', type=str, help='Path to the policies-file to load.')
-    dataOwner = CAKEDataOwner()
     args = parser.parse_args()
+    dataOwner = CAKEDataOwner(sender=args.sender)
+
 
     process_instance_id = config('PROCESS_INSTANCE_ID')
 

@@ -76,6 +76,7 @@ def check_handshake(message_id, reader_address, signature):
               (str(process_instance_id), message_id, reader_address))
     result = x.fetchall()
     number_to_sign = result[0][3]
+    print(number_to_sign)
     msg = str(number_to_sign).encode()
     public_key_ipfs_link = block_int.retrieve_publicKey(reader_address)
     getfile = api.cat(public_key_ipfs_link)
@@ -144,7 +145,7 @@ def start():
         conn = context.wrap_socket(newsocket, server_side=True)
         thread = threading.Thread(target=handle_client, args=(conn, fromaddr))
         thread.start()
-        print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
+        print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
 
 
 print("[STARTING] server is starting...")

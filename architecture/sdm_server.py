@@ -145,7 +145,7 @@ def start():
         conn = context.wrap_socket(newsocket, server_side=True)
         thread = threading.Thread(target=handle_client, args=(conn, fromaddr))
         thread.start()
-        print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
+        print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
 
 
 print("[STARTING] server is starting...")

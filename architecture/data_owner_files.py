@@ -24,6 +24,7 @@ class CAKEDataOwner(Connector):
         # print(receive)
         if receive.startswith('Number to be signed: '):
             len_initial_message = len('Number to be signed: ')
+            print(receive[len_initial_message:])
             self.x.execute("INSERT OR IGNORE INTO handshake_number VALUES (?,?,?)",
                            (self.process_instance_id, self.sender_address, receive[len_initial_message:]))
             self.connection.commit()
@@ -35,9 +36,14 @@ class CAKEDataOwner(Connector):
     def handshake(self):
         """Handshake with the CAKE SDM server"""
 
-        print("Start handshake")
-        self.send("Start handshake§" + self.sender_address)
-        self.disconnect()
+        if self.x.execute("SELECT * FROM handshake_number WHERE process_instance=? AND sender_address=?",
+                  (str(process_instance_id), self.sender_address)):
+            print("the number is already present")
+            self.disconnect()
+        else:
+            print("Start handshake")
+            self.send("Start handshake§" + self.sender_address)
+            self.disconnect()
         return
 
     def cipher_files(self, message_to_send, policy_string):

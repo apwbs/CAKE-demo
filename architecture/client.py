@@ -100,6 +100,7 @@ class CAKEClient(Connector):
 
         if receive.startswith('Number to be signed: '):
             len_initial_message = len('Number to be signed: ')
+            print(receive[len_initial_message:])
             self.x.execute("INSERT OR IGNORE INTO handshake_number VALUES (?,?,?,?)",
                            (self.process_instance_id, self.message_id, self.reader_address,
                             receive[len_initial_message:]))
@@ -189,6 +190,7 @@ class CAKEClient(Connector):
                        (self.process_instance_id, self.message_id, self.reader_address))
         result = self.x.fetchall()
         number_to_sign = result[0][3]
+        print(number_to_sign)
         return super().sign_number(number_to_sign, self.reader_address)
 
 

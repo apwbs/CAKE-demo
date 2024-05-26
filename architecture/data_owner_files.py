@@ -36,8 +36,10 @@ class CAKEDataOwner(Connector):
     def handshake(self):
         """Handshake with the CAKE SDM server"""
 
-        if self.x.execute("SELECT * FROM handshake_number WHERE process_instance=? AND sender_address=?",
-                  (str(process_instance_id), self.sender_address)):
+        self.x.execute("SELECT * FROM handshake_number WHERE process_instance=? AND sender_address=?",
+                  (str(self.process_instance_id), self.sender_address))
+        result = self.x.fetchall()
+        if result:
             print("the number is already present")
             self.disconnect()
         else:

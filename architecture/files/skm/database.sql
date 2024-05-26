@@ -22,10 +22,9 @@ CREATE TABLE generated_key_reader (
 
 CREATE TABLE handshake_numbers ( 
     process_instance TEXT,
-    message_id TEXT,
     reader_address TEXT,
     handshake_number TEXT,
-    primary key (process_instance, message_id, reader_address)
+    primary key (process_instance, reader_address)
 );
 
 CREATE TABLE readers_public_keys ( 

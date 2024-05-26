@@ -51,7 +51,7 @@ def read_files(message_id, slice_id, reader_address):
     return decipher_files.main(message_id, slice_id, reader_address)
 
 
-def generate_number_to_sign(message_id, reader_address):
+def generate_number_to_sign(reader_address):
     # Connection to SQLite3 skm database
     connection = sqlite3.connect('files/skm/skm.db')
     x = connection.cursor()
@@ -61,22 +61,21 @@ def generate_number_to_sign(message_id, reader_address):
     random.seed(now)
     number_to_sign = random.randint(1, 2 ** 64)
 
-    x.execute("INSERT OR IGNORE INTO handshake_numbers VALUES (?,?,?,?)",
-              (str(process_instance_id), message_id, reader_address, str(number_to_sign)))
+    x.execute("INSERT OR IGNORE INTO handshake_numbers VALUES (?,?,?)",
+              (str(process_instance_id), reader_address, str(number_to_sign)))
     connection.commit()
     return number_to_sign
 
 
-def check_handshake(message_id, reader_address, signature):
+def check_handshake(reader_address, signature):
     # Connection to SQLite3 skm database
     connection = sqlite3.connect('files/skm/skm.db')
     x = connection.cursor()
 
-    x.execute("SELECT * FROM handshake_numbers WHERE process_instance=?  AND message_id=? AND reader_address=?",
-              (str(process_instance_id), message_id, reader_address))
+    x.execute("SELECT * FROM handshake_numbers WHERE process_instance=?  AND reader_address=?",
+              (str(process_instance_id), reader_address))
     result = x.fetchall()
-    number_to_sign = result[0][3]
-    print(number_to_sign)
+    number_to_sign = result[0][2]
     msg = str(number_to_sign).encode()
     public_key_ipfs_link = block_int.retrieve_publicKey(reader_address)
     getfile = api.cat(public_key_ipfs_link)
@@ -112,20 +111,20 @@ def handle_client(conn, addr):
             conn.send("Msg received!".encode(FORMAT))
             message = msg.split('§')
             if message[0] == "Start handshake":
-                number_to_sign = generate_number_to_sign(message[1], message[2])
+                number_to_sign = generate_number_to_sign(message[1])
                 conn.send(b'Number to be signed: ' + str(number_to_sign).encode())
             if message[0] == "Generate my key":
-                if check_handshake(message[1], message[2], message[3]):
+                if check_handshake(message[2], message[3]):
                     response = generate(message[1], message[2])
                     response_0 = bytes(str(response[0]), FORMAT)
                     response_1 = bytes(str(response[1]), FORMAT)
                     conn.send(b'Here are the IPFS link and key: ' + response_0 + b'\n\n' + response_1)
             if message[0] == "Access my data":
-                if check_handshake(message[1], message[3], message[4]):
-                    response = read(message[1], message[2], message[3])
+                if check_handshake(message[3], message[4]):
+                    response = read(message[2], message[3])
                     conn.send(b'Here are the plaintext and salt: ' + response[0] + b'\n\n' + response[1])
             if message[0] == "Access my files":
-                if check_handshake(message[1], message[3], message[4]):
+                if check_handshake(message[3], message[4]):
                     response = read_files(message[1], message[2], message[3])
                     conn.send(b'Here is the file and salt: ' + response[0] + b'\n\n' + response[1])
 

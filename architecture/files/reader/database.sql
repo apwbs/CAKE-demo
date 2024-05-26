@@ -34,8 +34,7 @@ CREATE TABLE rsa_private_key (
 
 CREATE TABLE handshake_number ( 
     process_instance TEXT,
-    message_id TEXT,
     reader_address TEXT,
     number_to_sign TEXT,
-    primary key (process_instance, message_id, reader_address)
+    primary key (process_instance, reader_address)
 );

@@ -100,10 +100,9 @@ class CAKEClient(Connector):
 
         if receive.startswith('Number to be signed: '):
             len_initial_message = len('Number to be signed: ')
-            print(receive[len_initial_message:])
-            self.x.execute("INSERT OR IGNORE INTO handshake_number VALUES (?,?,?,?)",
-                           (self.process_instance_id, self.message_id, self.reader_address,
-                            receive[len_initial_message:]))
+            len_final_message = len('Msg received!')
+            self.x.execute("INSERT OR IGNORE INTO handshake_number VALUES (?,?,?)",
+                           (self.process_instance_id, self.reader_address, receive[len_initial_message:-len_final_message]))
             self.connection.commit()
 
         if receive.startswith('Here are the IPFS link and key'):
@@ -142,8 +141,16 @@ class CAKEClient(Connector):
 
     def handshake(self):
         """Start the handshake with the CAKE SKM server"""
-        self.send("Start handshake§" + str(self.message_id) + '§' + self.reader_address)
-        self.disconnect()
+
+        self.x.execute("SELECT * FROM handshake_number WHERE process_instance=? AND reader_address=?",
+                  (str(self.process_instance_id), self.reader_address))
+        result = self.x.fetchall()
+        if result:
+            print("the number is already present")
+            self.disconnect()
+        else:
+            self.send("Start handshake§" + self.reader_address)
+            self.disconnect()
         return
 
     def generate_key(self):
@@ -186,10 +193,10 @@ class CAKEClient(Connector):
             str: signature of the number
         """
 
-        self.x.execute("SELECT * FROM handshake_number WHERE process_instance=? AND message_id=? AND reader_address=?",
-                       (self.process_instance_id, self.message_id, self.reader_address))
+        self.x.execute("SELECT * FROM handshake_number WHERE process_instance=? AND reader_address=?",
+                       (self.process_instance_id, self.reader_address))
         result = self.x.fetchall()
-        number_to_sign = result[0][3]
+        number_to_sign = result[0][2]
         print(number_to_sign)
         return super().sign_number(number_to_sign, self.reader_address)
 

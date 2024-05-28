@@ -45,7 +45,7 @@ class Certifier():
         for actor in actors:
             Certifier.__read_public_key__(actor)
 
-    def skm_public_key():
+    def skm_public_key(self):
         """ Read the public key of the SKM"""
         Certifier.__skm_public_key__()
 
@@ -85,6 +85,18 @@ class Certifier():
         # # Connection to SQLite3 data_owner database
         connection = sqlite3.connect('files/data_owner/data_owner.db')
         y = connection.cursor()
+
+        x.execute("SELECT * FROM rsa_private_key WHERE reader_address=?", (reader_address,))
+        result = x.fetchall()
+        if result:
+            print("rsa key already present")
+            exit()
+
+        y.execute("SELECT * FROM rsa_private_key WHERE reader_address=?", (reader_address,))
+        result = y.fetchall()
+        if result:
+            print("rsa key already present")
+            exit()
 
         keyPair = RSA.generate(bits=1024)
 
@@ -131,6 +143,12 @@ class Certifier():
         # Connection to SQLite3 reader database
         conn = sqlite3.connect('files/skm/skm.db')
         x = conn.cursor()
+
+        x.execute("SELECT * FROM rsa_private_key WHERE reader_address=?", (skm_address,))
+        result = x.fetchall()
+        if result:
+            print("rsa key already present")
+            exit()
 
         (publicKey, privateKey) = rsa.newkeys(1024)
         publicKey_store = publicKey.save_pkcs1().decode('utf-8')

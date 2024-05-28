@@ -241,14 +241,6 @@ if __name__ == "__main__":
             roles_data = json.load(json_file)
 
         roles = {key: [value] if not isinstance(value, list) else value for key, value in roles_data.items()}
-
-        #    roles = {
-        #    'MANUFACTURER': ['MANUFACTURER'],
-        #
-        #    'SUPPLIER1': ['SUPPLIER', 'ELECTRONICS'],
-        #
-        #    'SUPPLIER2': ['SUPPLIER', 'MECHANICS']
-        #   }
         Certifier.attribute_certification(roles)
     else:
         raise Exception("Operation number not valid")

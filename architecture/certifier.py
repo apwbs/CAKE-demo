@@ -225,19 +225,19 @@ class Certifier():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Certifier configuration')
-    parser.add_argument('-o', '--operation', type=int, default=0,
-                        help='Operation to perform \n 0 - READ PUBLIC KEY \n 2 - READ SKM PUBLIC KEY \n 3 - CERTIFY ATTRIBUTES ')
+    parser.add_argument('-o', '--operation', type=int, default=0)
     parser.add_argument('-r', '--reader', type=str, default='MANUFACTURER', help='Reader name')
+    parser.add_argument('-i', '--input', type=str, help='Roles file')
     args = parser.parse_args()
     if args.operation == 0:
-        print(args.reader)
         Certifier.read_public_keys([args.reader])
 
     elif args.operation == 1:
         Certifier.skm_public_key()
 
     elif args.operation == 2:
-        with open("files/roles.json", "r") as json_file:
+        file = args.input
+        with open(file, "r") as json_file:
             roles_data = json.load(json_file)
 
         roles = {key: [value] if not isinstance(value, list) else value for key, value in roles_data.items()}

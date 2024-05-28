@@ -1,2 +1,2 @@
 sh resetDB.sh
-sh certification.sh
+sh certification_simple.sh

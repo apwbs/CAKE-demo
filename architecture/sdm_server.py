@@ -2,7 +2,6 @@ import json
 import socket
 import ssl
 import threading
-import cipher_message
 import cipher_files
 from datetime import datetime
 import random
@@ -42,10 +41,6 @@ bindsocket.listen(5)
 """
 function triggered by the client handler. Here starts the ciphering of the message with the policy.
 """
-
-
-def cipher(message):
-    return cipher_message.main(message[1], message[2], message[3], message[4])
 
 
 def cipher_plus(message):

@@ -2,7 +2,6 @@ import socket
 import ssl
 import threading
 import key_generation
-import decipher_message
 from datetime import datetime
 import random
 import sqlite3
@@ -41,10 +40,6 @@ bindsocket.listen(5)
 
 def generate(message_id, reader_address):
     return key_generation.main(message_id, reader_address)
-
-
-def read(message_id, slice_id, reader_address):
-    return decipher_message.main(message_id, slice_id, reader_address)
 
 
 def read_files(message_id, slice_id, reader_address):

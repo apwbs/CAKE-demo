@@ -13,7 +13,51 @@ import argparse
 
 def skm_public_key():
     """ Read the public key of the SKM"""
-    Certifier.__skm_public_key__()
+    __skm_public_key__()
+
+
+def __skm_public_key__():
+    """ Read the public and private key of the SKM
+
+    Read the public and private key of the SKM from .env and store them in a SQLite3 database
+    and on the blockchain on the PKSKMContract
+    """
+    api = ipfshttpclient.connect('/ip4/127.0.0.1/tcp/5001')
+
+    print("Reading keys of SKM")
+
+    skm_address = config('SKM_ADDRESS')
+    skm_private_key = config('SKM_PRIVATEKEY')
+
+    # Connection to SQLite3 reader database
+    conn = sqlite3.connect('../databases/skm/skm.db')
+    x = conn.cursor()
+
+    x.execute("SELECT * FROM rsa_private_key WHERE reader_address=?", (skm_address,))
+    result = x.fetchall()
+    if result:
+        print("rsa key already present")
+        exit()
+
+    (publicKey, privateKey) = rsa.newkeys(1024)
+    publicKey_store = publicKey.save_pkcs1().decode('utf-8')
+    privateKey_store = privateKey.save_pkcs1().decode('utf-8')
+
+    f = io.StringIO()
+    f.write('skm_address: ' + skm_address + '###')
+    f.write(publicKey_store)
+    f.seek(0)
+
+    hash_file = api.add_json(f.read())
+    print(f'ipfs hash: {hash_file}')
+
+    block_int.send_publicKey(skm_address, skm_private_key, hash_file)
+
+    x.execute("INSERT OR IGNORE INTO rsa_private_key VALUES (?,?)", (skm_address, privateKey_store))
+    conn.commit()
+
+    x.execute("INSERT OR IGNORE INTO rsa_public_key VALUES (?,?,?)", (skm_address, hash_file, publicKey_store))
+    conn.commit()
 
 
 class Certifier():
@@ -38,7 +82,7 @@ class Certifier():
         """
         for actor in actors:
             Certifier.__read_public_key__(actor)
-        Certifier.__skm_public_key__()
+        __skm_public_key__()
         return Certifier.__attribute_certification__(roles)
 
     def read_public_keys(actors):
@@ -127,49 +171,6 @@ class Certifier():
         y.execute("INSERT OR IGNORE INTO rsa_public_key VALUES (?,?,?,?)",
                   (reader_address, hash_file, str(keyPair.n), str(keyPair.e)))
         connection.commit()
-
-    def __skm_public_key__(self):
-        """ Read the public and private key of the SKM
-
-        Read the public and private key of the SKM from .env and store them in a SQLite3 database
-        and on the blockchain on the PKSKMContract
-        """
-        api = ipfshttpclient.connect('/ip4/127.0.0.1/tcp/5001')
-
-        print("Reading keys of SKM")
-
-        skm_address = config('SKM_ADDRESS')
-        skm_private_key = config('SKM_PRIVATEKEY')
-
-        # Connection to SQLite3 reader database
-        conn = sqlite3.connect('../databases/skm/skm.db')
-        x = conn.cursor()
-
-        x.execute("SELECT * FROM rsa_private_key WHERE reader_address=?", (skm_address,))
-        result = x.fetchall()
-        if result:
-            print("rsa key already present")
-            exit()
-
-        (publicKey, privateKey) = rsa.newkeys(1024)
-        publicKey_store = publicKey.save_pkcs1().decode('utf-8')
-        privateKey_store = privateKey.save_pkcs1().decode('utf-8')
-
-        f = io.StringIO()
-        f.write('skm_address: ' + skm_address + '###')
-        f.write(publicKey_store)
-        f.seek(0)
-
-        hash_file = api.add_json(f.read())
-        print(f'ipfs hash: {hash_file}')
-
-        block_int.send_publicKey(skm_address, skm_private_key, hash_file)
-
-        x.execute("INSERT OR IGNORE INTO rsa_private_key VALUES (?,?)", (skm_address, privateKey_store))
-        conn.commit()
-
-        x.execute("INSERT OR IGNORE INTO rsa_public_key VALUES (?,?,?)", (skm_address, hash_file, publicKey_store))
-        conn.commit()
 
     def __store_process_id_to_env__(value):
         name = 'PROCESS_INSTANCE_ID'

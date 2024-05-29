@@ -45,7 +45,7 @@ class HybridABEnc(ABEnc):
 
 def main(message_id, slice_id, reader_address):
     # Connection to SQLite3 skm database
-    conn = sqlite3.connect('files/skm/skm.db')
+    conn = sqlite3.connect('../databases/skm/skm.db')
     x = conn.cursor()
 
     api = ipfshttpclient.connect('/ip4/127.0.0.1/tcp/5001')

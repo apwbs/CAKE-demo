@@ -11,6 +11,11 @@ import json
 import argparse
 
 
+def skm_public_key():
+    """ Read the public key of the SKM"""
+    Certifier.__skm_public_key__()
+
+
 class Certifier():
     """ Manage the certification of the attributes of the actors
 
@@ -45,10 +50,6 @@ class Certifier():
         for actor in actors:
             Certifier.__read_public_key__(actor)
 
-    def skm_public_key(self):
-        """ Read the public key of the SKM"""
-        Certifier.__skm_public_key__()
-
     def attribute_certification(roles):
         """ Certify the attributes of the actors
 
@@ -79,11 +80,11 @@ class Certifier():
         private_key = config('PRIVATEKEY_' + actor_name)
 
         # Connection to SQLite3 reader database
-        conn = sqlite3.connect('files/reader/reader.db')
+        conn = sqlite3.connect('../databases/reader/reader.db')
         x = conn.cursor()
 
         # # Connection to SQLite3 data_owner database
-        connection = sqlite3.connect('files/data_owner/data_owner.db')
+        connection = sqlite3.connect('../databases/data_owner/data_owner.db')
         y = connection.cursor()
 
         x.execute("SELECT * FROM rsa_private_key WHERE reader_address=?", (reader_address,))
@@ -127,7 +128,7 @@ class Certifier():
                   (reader_address, hash_file, str(keyPair.n), str(keyPair.e)))
         connection.commit()
 
-    def __skm_public_key__():
+    def __skm_public_key__(self):
         """ Read the public and private key of the SKM
 
         Read the public and private key of the SKM from .env and store them in a SQLite3 database
@@ -141,7 +142,7 @@ class Certifier():
         skm_private_key = config('SKM_PRIVATEKEY')
 
         # Connection to SQLite3 reader database
-        conn = sqlite3.connect('files/skm/skm.db')
+        conn = sqlite3.connect('../databases/skm/skm.db')
         x = conn.cursor()
 
         x.execute("SELECT * FROM rsa_private_key WHERE reader_address=?", (skm_address,))
@@ -172,9 +173,8 @@ class Certifier():
 
     def __store_process_id_to_env__(value):
         name = 'PROCESS_INSTANCE_ID'
-        with open('.env', 'r', encoding='utf-8') as file:
+        with open('../src/.env', 'r', encoding='utf-8') as file:
             data = file.readlines()
-        edited = False
         for line in data:
             if line.startswith(name):
                 data.remove(line)
@@ -182,7 +182,7 @@ class Certifier():
         line = "\n" + name + "=" + value + "\n"
         data.append(line)
 
-        with open('.env', 'w', encoding='utf-8') as file:
+        with open('../src/.env', 'w', encoding='utf-8') as file:
             file.writelines(data)
 
     def __attribute_certification__(roles):
@@ -205,7 +205,7 @@ class Certifier():
         certifier_private_key = config('PRIVATEKEY_CERTIFIER')
 
         # Connection to SQLite3 attribute_certifier database
-        conn = sqlite3.connect('files/attribute_certifier/attribute_certifier.db')  # Connect to the database
+        conn = sqlite3.connect('../databases/attribute_certifier/attribute_certifier.db')  # Connect to the database
         x = conn.cursor()
 
         now = datetime.now()
@@ -251,7 +251,7 @@ if __name__ == "__main__":
         Certifier.read_public_keys([args.reader])
 
     elif args.operation == 1:
-        Certifier.skm_public_key()
+        skm_public_key()
 
     elif args.operation == 2:
         file = args.input

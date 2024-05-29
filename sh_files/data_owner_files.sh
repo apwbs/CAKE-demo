@@ -45,8 +45,8 @@ fi
 # Run the Python script with the provided arguments
 if [ "$action" = "cipher" ]; then
   # Automatically perform handshake before ciphering
-  python3 data_owner_files.py -hs
+  python3 ../src/data_owner_files.py -hs
   echo "✅ Data owner handshake done"
-  python3 data_owner_files.py -c -i "$input" -p "$policies"
+  python3 ../src/data_owner_files.py -c -i "$input" -p "$policies"
   echo "✅ Data owner cipher done"
 fi

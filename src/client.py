@@ -42,7 +42,7 @@ class CAKEClient(Connector):
             slice_id (str, optional): slice id. Defaults to "".
             
         """
-        super().__init__(path_to_db='files/reader/reader.db', port=int(config('SKM_PORT')),
+        super().__init__(path_to_db='../databases/reader/reader.db', port=int(config('SKM_PORT')),
                          process_instance_id=process_instance_id)
         self.__setArgs__(message_id, reader_address, slice_id)
         return
@@ -112,16 +112,6 @@ class CAKEClient(Connector):
             self.x.execute("INSERT OR IGNORE INTO decription_keys VALUES (?,?,?,?,?)",
                            (self.process_instance_id, self.message_id, self.reader_address, ipfs_link, key))
             self.connection.commit()
-
-        if receive.startswith('Here are the plaintext and salt'):
-            plaintext = receive.split('\n\n')[0].split('Here are the plaintext and salt: ')[1]
-            salt = receive.split('\n\n')[1]
-
-            self.x.execute("INSERT OR IGNORE INTO plaintext VALUES (?,?,?,?,?,?)",
-                           (self.process_instance_id, self.message_id, self.slice_id, self.reader_address, plaintext,
-                            salt))
-            self.connection.commit()
-            print(plaintext)
 
         if receive.startswith('Here is the file and salt'):
             plaintext = receive.split('\n\n')[0].split('Here is the file and salt: ')[1]

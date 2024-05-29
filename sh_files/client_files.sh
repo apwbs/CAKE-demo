@@ -44,6 +44,6 @@ if [ -z "$reader_address" ] || [ -z "$message_id" ] || [ -z "$slice_id" ] || [ -
 fi
 
 # Run the commands with the provided arguments
-python3 client.py --handshake --reader_address "$reader_address"
-python3 client.py -gs --message_id "$message_id" --reader_address "$reader_address"
-python3 client.py -af --message_id "$message_id" --reader_address "$reader_address" --slice_id "$slice_id" --output_folder "$output_folder"
+python3 ../src/client.py --handshake --reader_address "$reader_address"
+python3 ../src/client.py -gs --message_id "$message_id" --reader_address "$reader_address"
+python3 ../src/client.py -af --message_id "$message_id" --reader_address "$reader_address" --slice_id "$slice_id" --output_folder "$output_folder"

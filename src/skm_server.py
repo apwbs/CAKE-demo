@@ -1,8 +1,7 @@
-import json
 import socket
 import ssl
 import threading
-import cipher_files
+import key_generation
 from datetime import datetime
 import random
 import sqlite3
@@ -10,18 +9,17 @@ from hashlib import sha512
 import block_int
 from decouple import config
 import ipfshttpclient
-
-chunk_size = 16384
+import decipher_files
 
 api = ipfshttpclient.connect('/ip4/127.0.0.1/tcp/5001')
 
 process_instance_id = config('PROCESS_INSTANCE_ID')
 
 HEADER = int(config('HEADER'))
-PORT = int(config('SDM_PORT'))
-server_cert = 'Keys/server.crt'
-server_key = 'Keys/server.key'
-client_certs = 'Keys/client.crt'
+PORT = int(config('SKM_PORT'))
+server_cert = '../Keys/server.crt'
+server_key = '../Keys/server.key'
+client_certs = '../Keys/client.crt'
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
@@ -30,6 +28,7 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 """
 creation and connection of the secure channel using SSL protocol
 """
+
 context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
 context.verify_mode = ssl.CERT_REQUIRED
 context.load_cert_chain(certfile=server_cert, keyfile=server_key)
@@ -38,18 +37,18 @@ bindsocket = socket.socket()
 bindsocket.bind(ADDR)
 bindsocket.listen(5)
 
-"""
-function triggered by the client handler. Here starts the ciphering of the message with the policy.
-"""
+
+def generate(message_id, reader_address):
+    return key_generation.main(message_id, reader_address)
 
 
-def cipher_plus(message):
-    return cipher_files.main(message[1], message[2], message[3])
+def read_files(message_id, slice_id, reader_address):
+    return decipher_files.main(message_id, slice_id, reader_address)
 
 
 def generate_number_to_sign(reader_address):
-    # Connection to SQLite3 sdm database
-    connection = sqlite3.connect('files/sdm/sdm.db')
+    # Connection to SQLite3 skm database
+    connection = sqlite3.connect('../databases/skm/skm.db')
     x = connection.cursor()
 
     now = datetime.now()
@@ -64,11 +63,11 @@ def generate_number_to_sign(reader_address):
 
 
 def check_handshake(reader_address, signature):
-    # Connection to SQLite3 sdm database
-    connection = sqlite3.connect('files/sdm/sdm.db')
+    # Connection to SQLite3 skm database
+    connection = sqlite3.connect('../databases/skm/skm.db')
     x = connection.cursor()
 
-    x.execute("SELECT * FROM handshake_numbers WHERE process_instance=? AND reader_address=?",
+    x.execute("SELECT * FROM handshake_numbers WHERE process_instance=?  AND reader_address=?",
               (str(process_instance_id), reader_address))
     result = x.fetchall()
     number_to_sign = result[0][2]
@@ -81,16 +80,13 @@ def check_handshake(reader_address, signature):
     if getfile[0].split(b': ')[1].decode('utf-8') == reader_address:
         hash = int.from_bytes(sha512(msg).digest(), byteorder='big')
         hashFromSignature = pow(int(signature), public_key_e, public_key_n)
-        if hash == hashFromSignature:
-            print("Handshake successful")
-        else: 
-            print("Handshake failed")
+        print("Signature valid:", hash == hashFromSignature)
         return hash == hashFromSignature
 
 
 """
-function that handles the requests from the clients. There is only one request possible, namely the 
-ciphering of a message with a policy.
+function that handles the requests from the clients. There are two possible requests, namely the 
+creation of a key and the deciphering of a ciphertext.
 """
 
 
@@ -102,11 +98,7 @@ def handle_client(conn, addr):
         msg_length = conn.recv(HEADER).decode(FORMAT)
         if msg_length:
             msg_length = int(msg_length)
-            received_data = b""
-            while len(received_data) < msg_length:
-                chunk = conn.recv(min(msg_length - len(received_data), chunk_size))
-                received_data += chunk
-            msg = received_data.decode(FORMAT)
+            msg = conn.recv(msg_length).decode(FORMAT)
             if msg == DISCONNECT_MESSAGE:
                 connected = False
 
@@ -116,14 +108,17 @@ def handle_client(conn, addr):
             if message[0] == "Start handshake":
                 number_to_sign = generate_number_to_sign(message[1])
                 conn.send(b'Number to be signed: ' + str(number_to_sign).encode())
-            if message[0] == "Cipher this message":
-                if check_handshake(message[4], message[5]):
-                    message_id = cipher(message)
-                    conn.send(b'Here is the message_id: ' + str(message_id).encode())
-            if message[0] == "Cipher these files":
+            if message[0] == "Generate my key":
+                if check_handshake(message[2], message[3]):
+                    response = generate(message[1], message[2])
+                    response_0 = bytes(str(response[0]), FORMAT)
+                    response_1 = bytes(str(response[1]), FORMAT)
+                    conn.send(b'Here are the IPFS link and key: ' + response_0 + b'\n\n' + response_1)
+            if message[0] == "Access my files":
                 if check_handshake(message[3], message[4]):
-                    message_id = cipher_plus(message)
-                    conn.send(b'Here is the message_id: ' + str(message_id).encode())
+                    response = read_files(message[1], message[2], message[3])
+                    conn.send(b'Here is the file and salt: ' + response[0] + b'\n\n' + response[1])
+
     conn.close()
 
 

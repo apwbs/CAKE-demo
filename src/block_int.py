@@ -4,7 +4,7 @@ import json
 import base64
 
 web3 = Web3(Web3.HTTPProvider("HTTP://127.0.0.1:7545"))
-compiled_contract_path = 'blockchain/build/contracts/CAKEContract.json'
+compiled_contract_path = '../blockchain/build/contracts/CAKEContract.json'
 deployed_contract_address = config('SMART_CONTRACT_CAKE_ETH')
 
 

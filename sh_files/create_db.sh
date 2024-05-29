@@ -1,5 +1,5 @@
 # Go to the directory where the databases are stored
-cd files
+cd ../databases
 
 # Create attribute_certifier database
 cd attribute_certifier

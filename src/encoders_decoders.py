@@ -28,7 +28,7 @@ def mk_encoder(mk, skm_address):
 
 def mk_decoder(mk_encoded, skm_address):
     # Connection to SQLite3 reader database
-    conn = sqlite3.connect('files/skm/skm.db')
+    conn = sqlite3.connect('../databases/skm/skm.db')
     x = conn.cursor()
 
     x.execute("SELECT * FROM rsa_private_key WHERE reader_address = ?", (skm_address,))

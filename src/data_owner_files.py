@@ -8,7 +8,7 @@ from connector import Connector
 
 class CAKEDataOwner(Connector):
     def __init__(self, process_instance_id=config('PROCESS_INSTANCE_ID')):
-        super().__init__("files/data_owner/data_owner.db", int(config('SDM_PORT')),
+        super().__init__("../databases/data_owner/data_owner.db", int(config('SDM_PORT')),
                          process_instance_id=process_instance_id)
         self.sender_address = config('ADDRESS_MANUFACTURER')
         return

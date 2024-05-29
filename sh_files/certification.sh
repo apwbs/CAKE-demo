@@ -34,5 +34,5 @@ if [ ! -f "$input" ]; then
 fi
 
 # Run the Python script with the provided arguments
-python3 certifier.py -o 2 -i "$input"
+python3 ../src/certifier.py -o 2 -i "$input"
 echo "✅ Attribute certifier done"

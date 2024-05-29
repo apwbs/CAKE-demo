@@ -29,5 +29,5 @@ if [ -z "$reader" ]; then
 fi
 
 # Run the Python script with the provided arguments
-python3 certifier.py -o 0 --reader "$reader"
+python3 ../src/certifier.py -o 0 --reader "$reader"
 echo "✅ Read public key of $reader"

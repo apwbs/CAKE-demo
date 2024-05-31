@@ -1,3 +1,5 @@
 {
-    "policies": "['(MANUFACTURER or SUPPLIER)'], ['(MANUFACTURER or (SUPPLIER and ELECTRONICS))'], ['(MANUFACTURER or (SUPPLIER and MECHANICS))']"
+    "Abstract.txt": "(MANUFACTURER or SUPPLIER)",
+    "Graphical_abstract.png": "(MANUFACTURER or (SUPPLIER and ELECTRONICS))",
+    "Marangone-etal-BPMBCF2022.pdf": "(MANUFACTURER or (SUPPLIER and MECHANICS))"
 }

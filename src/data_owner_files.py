@@ -101,23 +101,25 @@ if __name__ == "__main__":
     if args.input:
         input_path = args.input
         encoded_files = {}
-        for filename in os.listdir(input_path):
-            file_path = os.path.join(input_path, filename)
-            if os.path.isfile(file_path):
-                encoded_data = file_to_base64(file_path)
-                if encoded_data is not None:
-                    encoded_files[filename] = encoded_data
-
-        message_to_send = json.dumps(encoded_files)
 
         if args.policies:
             policies_path = args.policies
             with open(policies_path, "r") as json_file:
                 data = json.load(json_file)
-                policies_strings = data["policies"]
-                policies_list = policies_strings.split(", ")
-                policy = [process_instance_id + ' and ' + policy.strip("[]'") for policy in policies_list]
-                policy_string = '###'.join(policy)
+                policy_keys = data.keys()
 
-        if args.cipher:
-            dataOwner.cipher_files(message_to_send, policy_string)
+                for filename in policy_keys:
+                    file_path = os.path.join(input_path, filename)
+                    if os.path.isfile(file_path):
+                        encoded_data = file_to_base64(file_path)
+                        if encoded_data is not None:
+                            encoded_files[filename] = encoded_data
+
+            message_to_send = json.dumps(encoded_files)
+
+            policies_strings = data.values()
+            policy = [f"{process_instance_id} and {policy}" for policy in policies_strings]
+            policy_string = '###'.join(policy)
+
+            if args.cipher:
+                dataOwner.cipher_files(message_to_send, policy_string)

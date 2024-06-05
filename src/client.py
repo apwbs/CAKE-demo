@@ -31,8 +31,10 @@ class CAKEClient(Connector):
         slice_id (str): slice id
     """
 
-    def __init__(self, process_instance_id=config('PROCESS_INSTANCE_ID'), message_id="", reader_address="",
+    def __init__(self, sender_address="", process_instance_id=config('PROCESS_INSTANCE_ID'), message_id="",
+                 reader_address="",
                  slice_id=""):
+
         """Initialize the CAKEClient class
         
         Args:
@@ -43,7 +45,7 @@ class CAKEClient(Connector):
             
         """
         super().__init__(path_to_db='../databases/reader/reader.db', port=int(config('SKM_PORT')),
-                         process_instance_id=process_instance_id)
+                         process_instance_id=process_instance_id, sender_address=sender_address)
         self.__setArgs__(message_id, reader_address, slice_id)
         return
 
@@ -208,10 +210,12 @@ if __name__ == "__main__":
     message_id = args.message_id
     slice_id = args.slice_id
     reader_address = args.reader_address
+    sender_address = args.reader_address
 
     output_folder = args.output_folder
 
-    client = CAKEClient(message_id=message_id, reader_address=reader_address, slice_id=slice_id)
+    client = CAKEClient(message_id=message_id, reader_address=reader_address, slice_id=slice_id,
+                        sender_address=sender_address)
     if args.handshake:
         client.handshake()
     if args.generate_key or args.access_data or args.access_files:

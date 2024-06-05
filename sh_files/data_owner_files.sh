@@ -4,6 +4,7 @@
 action="cipher"
 input=""
 policies=""
+sender_address=""
 
 # Parse command-line arguments
 while [ $# -gt 0 ]; do
@@ -20,6 +21,11 @@ while [ $# -gt 0 ]; do
       ;;
     -p|--policies)
       policies="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -s|--sender_address)
+      sender_address="$2"
       shift # past argument
       shift # past value
       ;;
@@ -45,8 +51,8 @@ fi
 # Run the Python script with the provided arguments
 if [ "$action" = "cipher" ]; then
   # Automatically perform handshake before ciphering
-  python3 ../src/data_owner_files.py -hs
+  python3 ../src/data_owner_files.py -hs -s "$sender_address"
   echo "✅ Data owner handshake done"
-  python3 ../src/data_owner_files.py -c -i "$input" -p "$policies"
+  python3 ../src/data_owner_files.py -c -i "$input" -p "$policies" -s "$sender_address"
   echo "✅ Data owner cipher done"
 fi

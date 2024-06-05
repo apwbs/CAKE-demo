@@ -1,5 +1,5 @@
 {
-    "Import_Declaration.pdf": "(ECONOMIC_OPERATOR or CUSTOMS)",
-    "Declaration_of_Conformity.pdf": "(CUSTOMS or ECONOMIC_OPERATOR or COURIER)",
-    "Transport_Document.pdf": "(ECONOMIC_OPERATOR or CUSTOMS or COURIER)"
+    "Import_Declaration.pdf": "(ECONOMICOPERATOR or CUSTOMS)",
+    "Declaration_of_Conformity.pdf": "(CUSTOMS or ECONOMICOPERATOR or COURIER)",
+    "Transport_Document.pdf": "(ECONOMICOPERATOR or CUSTOMS or COURIER)"
 }

@@ -7,10 +7,9 @@ from connector import Connector
 
 
 class CAKEDataOwner(Connector):
-    def __init__(self, process_instance_id=config('PROCESS_INSTANCE_ID')):
+    def __init__(self, sender_address, process_instance_id=config('PROCESS_INSTANCE_ID')):
         super().__init__("../databases/data_owner/data_owner.db", int(config('SDM_PORT')),
-                         process_instance_id=process_instance_id)
-        self.sender_address = config('ADDRESS_MANUFACTURER')
+                         process_instance_id=process_instance_id, sender_address=sender_address)
         return
 
     def send(self, msg):
@@ -87,12 +86,14 @@ def file_to_base64(file_path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-hs', '--handshake', action='store_true')
+    parser.add_argument('-s', '--sender_address', type=str, help='Sender address of the requester')
     parser.add_argument('-c', '--cipher', action='store_true')
     parser.add_argument('-i', '--input', type=str, help='Path to the input-file to load.')
     parser.add_argument('-p', '--policies', type=str, help='Path to the policies-file to load.')
-    dataOwner = CAKEDataOwner()
-    args = parser.parse_args()
 
+    args = parser.parse_args()
+    sender_address = args.sender_address
+    dataOwner = CAKEDataOwner(sender_address=sender_address)
     process_instance_id = config('PROCESS_INSTANCE_ID')
 
     if args.handshake:
@@ -123,3 +124,4 @@ if __name__ == "__main__":
 
             if args.cipher:
                 dataOwner.cipher_files(message_to_send, policy_string)
+

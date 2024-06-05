@@ -27,7 +27,7 @@ class Connector:
         conn (ssl.SSLSocket): connection to the server
     """
 
-    def __init__(self, path_to_db, port, process_instance_id=config('PROCESS_INSTANCE_ID')):
+    def __init__(self, path_to_db, port, sender_address, process_instance_id=config('PROCESS_INSTANCE_ID')):
         """Initialize the CAKEBridge class
 
         Args:
@@ -35,6 +35,7 @@ class Connector:
             port (int): port number
             process_instance_id (int, optional): process instance id. Defaults to config('PROCESS_INSTANCE_ID').
         """
+        self.sender_address = sender_address
         self.connection = sqlite3.connect(path_to_db)
 
         self.x = self.connection.cursor()

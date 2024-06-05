@@ -1,5 +1,5 @@
 {
-    "Abstract.txt": "(MANUFACTURER or SUPPLIER)",
-    "Graphical_abstract.png": "(MANUFACTURER or (SUPPLIER and ELECTRONICS))",
-    "Marangone-etal-BPMBCF2022.pdf": "(MANUFACTURER or (SUPPLIER and MECHANICS))"
+    "Import_Declaration.pdf": "(ECONOMIC_OPERATOR or CUSTOMS)",
+    "Declaration_of_Conformity.pdf": "(CUSTOMS or ECONOMIC_OPERATOR or COURIER)",
+    "Transport_Document.pdf": "(ECONOMIC_OPERATOR or CUSTOMS or COURIER)"
 }
